@@ -1,0 +1,42 @@
+version: '4.59.0'
+services:
+  wordpress:
+    restart: unless-stopped
+    image: wordpress:6.9.4-php8.2-apache
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress_db
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - wordpress_network
+
+  db:
+    restart: unless-stopped
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: wordpress_db
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - wordpress_network
+
+volumes:
+  wordpress:
+  db:
+
+networks:
+  wordpress_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "192.168.0.0/24"
